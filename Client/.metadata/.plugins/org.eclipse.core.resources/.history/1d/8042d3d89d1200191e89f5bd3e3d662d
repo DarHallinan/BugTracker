@@ -1,0 +1,12 @@
+package client;
+
+public class User {
+	public User() {
+	}
+	
+	protected static void login() {
+	}
+	
+	protected static void signup() {
+	}
+}

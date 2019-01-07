@@ -1,0 +1,25 @@
+package client;
+
+import java.util.Scanner;
+
+/**
+ * 
+ * @author G00342845
+ * 		   Darren Hallinan
+ *
+ */
+
+public class Menu {
+	public Menu() {
+		show();
+	}
+	
+	protected static void show() {
+		console = new Scanner(System.in);
+		int choice;
+		
+		System.out.print("Options: \n  1)Login\n  2)Create Account\n");
+		choice  = console.nextInt();
+
+	}
+}

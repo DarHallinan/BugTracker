@@ -1,0 +1,99 @@
+package server;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.*;
+
+/**
+ * 
+ * @author G00342845
+ * 		   Darren Hallinan
+ *
+ */
+
+/** Server() class */
+public class Server {
+	/** main method for the program's server */
+	public static void main(String[] args) {
+		// initialise server and client variables
+		ServerSocket listener;
+		int clientid = 0;
+		
+		try 
+		{
+			 listener = new ServerSocket(10000,10);
+			 
+			 while(true)
+			 {
+				System.out.println("Main thread listening for incoming new connections");
+				Socket newconnection = listener.accept();
+				
+				System.out.println("New connection received and spanning a thread");
+				Connecthandler t = new Connecthandler(newconnection, clientid);
+				clientid++;
+				t.start();
+			 }
+			
+		} // end of try
+		
+		catch (IOException e) 
+		{
+			System.out.println("Error with Socket... Could not open...");
+			e.printStackTrace();
+		}
+	}
+
+} // end of Server()
+
+/** Connecthandler() class for the program's server */
+class Connecthandler extends Thread
+{
+	// initialise variables
+	Socket individualconnection;
+	int socketid;
+	ObjectOutputStream out;
+	ObjectInputStream in;
+	String message;
+	
+	// constructor 
+	public Connecthandler(Socket s, int i)
+	{
+		individualconnection = s;
+		socketid = i;
+	}
+	
+	// run method
+	public void run()
+	{	
+		try 
+		{	
+			out = new ObjectOutputStream(individualconnection.getOutputStream());
+			out.flush();
+			in = new ObjectInputStream(individualconnection.getInputStream());
+			System.out.println("Connection"+ socketid+" from IP address "+individualconnection.getInetAddress());	
+		} // start talking with client
+		
+		
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}		
+		finally
+		{
+			try 
+			{
+				out.close();
+				in.close();
+				individualconnection.close();
+			}
+				
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+		}
+			
+	}
+	
+} // end of Connecthandler()

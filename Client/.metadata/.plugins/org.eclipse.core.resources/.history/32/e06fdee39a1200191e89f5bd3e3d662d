@@ -1,0 +1,20 @@
+package client;
+
+/**
+ * 
+ * @author G00342845
+ * 		   Darren Hallinan
+ *
+ */
+
+public class Menu {
+	public Menu() {
+		show();
+	}
+	
+	private void show() {
+		int choice;
+		
+		System.out.print("Options: /n/t1)Login/n/t2)Create Account/n");
+	}
+}

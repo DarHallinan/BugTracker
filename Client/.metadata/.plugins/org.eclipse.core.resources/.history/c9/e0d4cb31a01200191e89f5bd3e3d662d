@@ -1,0 +1,33 @@
+package client;
+
+import java.io.IOException;
+import java.util.Scanner;
+
+/**
+ * 
+ * @author G00342845
+ * 		   Darren Hallinan
+ *
+ */
+
+public class Menu {	
+	public Menu() throws IOException {
+		show();
+	}
+	
+	protected static void show() throws IOException {
+		Scanner console = new Scanner(System.in);
+		int choice;
+		
+		System.out.print("Options: \n  1)Login\n  2)Create Account\n  3)Exit\n");
+		choice  = console.nextInt();
+		
+		if(choice == 1)
+			User.login();
+		else if(choice == 2)
+			User.signup();
+		else if(choice == 3)
+			System.exit(0);
+
+	}
+}

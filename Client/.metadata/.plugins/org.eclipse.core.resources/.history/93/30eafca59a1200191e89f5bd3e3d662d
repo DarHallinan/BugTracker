@@ -1,0 +1,18 @@
+package client;
+
+/**
+ * 
+ * @author G00342845
+ * 		   Darren Hallinan
+ *
+ */
+
+public class Menu {
+	public Menu() {
+		show();
+	}
+	
+	private void show() {
+		
+	}
+}

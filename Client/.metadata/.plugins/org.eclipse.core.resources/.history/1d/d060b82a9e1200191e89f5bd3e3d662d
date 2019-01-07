@@ -1,0 +1,35 @@
+package client;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class User {
+	public User() {
+	}
+
+	protected static void login() {
+	}
+
+	protected static void signup() throws IOException {
+		Scanner console = new Scanner(System.in);
+		// user variables
+		String name;
+		int empId;
+		String email;
+		String password;
+		
+		System.out.print("Please enter your name: ");
+		name  = console.next();
+		System.out.print("Please enter your employee ID: ");
+		empId  = console.nextInt();
+		System.out.print("Please enter your email address: ");
+		email  = console.next();
+		System.out.print("Please enter your password: ");
+		password  = console.next();
+		
+		FileWriter fW = new FileWriter("userInfo.txt", true); // set append to true
+		fW.write(name + " " + empId + " " + email + " " + password);
+		fW.close();
+	}
+}
