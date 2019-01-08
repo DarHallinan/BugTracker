@@ -1,0 +1,118 @@
+package server;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.*;
+
+/**
+ * 
+ * @author G00342845
+ * 		   Darren Hallinan
+ *
+ */
+
+/** Server() class */
+public class Server {
+	/** main method for the program's server */
+	public static void main(String[] args) {
+		// initialise server and client variables
+		ServerSocket listener;
+		int clientid = 0;
+
+		try {
+			listener = new ServerSocket(5005, 10);
+
+			while (true) {
+				System.out.println("Main thread listening for incoming new connections");
+				Socket newconnection = listener.accept();
+
+				System.out.println("New connection received and spanning a thread");
+				ConnectHandler t = new ConnectHandler(newconnection, clientid);
+				clientid++;
+				t.run();
+			}
+
+		}
+		// throws error if connection fails
+		catch (IOException e) {
+			System.out.println("Error with Socket... Could not open...");
+			e.printStackTrace();
+		}
+	}
+
+} // end of Server()
+
+/** Connecthandler() class for the program's server */
+class ConnectHandler implements Runnable {
+	// initialise variables
+	Socket individualconnection;
+	int socketid;
+	static ObjectOutputStream out;
+	ObjectInputStream in;
+	String message;
+
+	/** constructor method for Connecthandler */
+	public ConnectHandler(Socket s, int i) {
+		individualconnection = s;
+		socketid = i;
+	}
+
+	/** message sending method to the client */
+	public static void sendMessage(String msg) {
+		try {
+			out.writeObject(msg);
+			out.flush();
+			System.out.println("client>\n" + msg);
+		} catch (IOException ioException) { ioException.printStackTrace(); }
+	}
+
+	/** run function for the server */
+	public void run() {
+		try {	
+			out = new ObjectOutputStream(individualconnection.getOutputStream());
+			out.flush();
+			in = new ObjectInputStream(individualconnection.getInputStream());
+			System.out.println("Connection "+ socketid + " from IP address " + individualconnection.getInetAddress());
+			
+			
+			do {	
+				// start talking with the client					
+				sendMessage("Options: \n  1)Login\n  2)Create Account\n -1)Exit\n");
+				message = in.readObject().toString();
+				
+				if (message.equals("1")) // brings the user to login upon hitting 1
+					Employee.login(in);
+				else if (message.equals("2")) // brings user to signup upon hitting 2
+					Employee.signup(in);
+				
+			}while(!message.equalsIgnoreCase("-1"));
+			
+		} catch (IOException | ClassNotFoundException e) { e.printStackTrace(); } 
+		
+		// close down connections
+		finally {
+			try {
+				out.close();
+				in.close();
+				individualconnection.close();
+			} catch (IOException e) { e.printStackTrace(); }
+		}
+
+	} // end of run
+
+	/** bug menu for when user is logged in */
+	public void bugMenu() throws IOException, ClassNotFoundException {
+		do {
+		sendMessage("Options: \n  1)Register Bug\n  2)View all bugs\n -1)Log out\n");
+		message = in.readObject().toString();
+		
+		if (message.equals("1")) // brings the user to register new bug
+			Bug.registerBug(in);
+		else if (message.equals("2")) // brings user to view all bugs
+			Bug.viewAllBugs(in);
+
+		}while (!message.equalsIgnoreCase("1"));
+	}
+		
+} // end of ConnectHandler()

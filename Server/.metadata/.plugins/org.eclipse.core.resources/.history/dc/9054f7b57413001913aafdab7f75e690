@@ -1,0 +1,100 @@
+package server;
+
+/**
+ * 
+ * @author G00342845
+ * 		   Darren Hallinan
+ *
+ */
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Scanner;
+
+public class Bug {
+	private static String message;
+	// bug variables
+	private String appName;
+	private String timeStamp;
+	private String platform;
+	private String description;
+	private String status;
+
+	// basic constructor
+	public Bug(String appName, String timeStamp, String platform, String description, String status) {
+		this.appName = appName;
+		this.timeStamp = timeStamp;
+		this.platform = platform;
+		this.description = description;
+		this.status = status;
+	}
+	
+	// name getter/setter
+	public String getAppName() { return appName; }
+	public void setAppName(String appName) { this.appName = appName; }
+	// timeStamp getter/setter
+	public String getTimeStamp() { return timeStamp; }
+	public void setTimeStamp(String timeStamp) { this.timeStamp = timeStamp; }
+	// platform getter/setter
+	public String getPlatform() {return platform; }
+	public void setPlatform(String platform) { this.platform = platform; }
+	// description getter/setter
+	public String getdescription() { return description; }
+	public void setdescription(String description) { this.description = description; }
+	// status getter/setter
+	public String getStatus() { return status; }
+	public void setStatus(String status) { this.status = status; }
+
+	/** function to register a new bug */
+	public static void registerBug(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		// bug variables
+		String appName;
+		String timeStamp;
+		String platform;
+		String description;
+		String status;
+
+		// create a loop that gives user the choice to re-enter incorrect info
+		do {
+			// gives user menu to enter details
+			ConnectHandler.sendMessage("Enter the application name: "); // send prompt to enter name of app
+			appName = in.readObject().toString();
+			ConnectHandler.sendMessage("Enter the date (dd/mm): "); // send prompt to enter time stamp
+			timeStamp = in.readObject().toString();
+			ConnectHandler.sendMessage("Enter the platform the bug occurred on: "); // send prompt to enter platform
+			platform = in.readObject().toString();
+			ConnectHandler.sendMessage("Enter a description of the bug: "); // send prompt to enter description
+			description = in.readObject().toString();
+			ConnectHandler.sendMessage("Enter the current status of the bug: "); // send prompt to enter status
+			status = in.readObject().toString();
+			
+			ConnectHandler.sendMessage("Press 1 to confirm details or 2 to re-enter: \n");
+			message = in.readObject().toString();
+		} while (!message.equalsIgnoreCase("1"));
+
+		// creates employee object
+		Bug bug = new Bug(appName, timeStamp, platform, description, status);
+
+		// writes to file only after details are confirmed
+		FileWriter fW = new FileWriter("Resources\\bugInfo.txt", true); // set append to true
+		fW.write(appName + " " + appName + " " + appName + " "  + 
+					description + " "  + status + "\n");
+		fW.close();
+		
+		// exit to menu after logging is complete
+		ConnectHandler.bugMenu();	
+	}
+	
+	/** function to view all bugs */
+	public static void viewAllBugs(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		File file = new File("Resources\\bugInfo.txt");	
+	    Scanner scanner = new Scanner(file);
+	    // print out contents of file while the file isn't empty
+	    while (scanner.hasNextLine()) 
+	    	ConnectHandler.sendMessage(scanner.nextLine()); 
+	    
+	} // end of view bugs
+
+} // end of Bug()

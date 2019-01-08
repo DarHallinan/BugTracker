@@ -1,0 +1,211 @@
+package server;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.*;
+import java.util.Scanner;
+
+/**
+ * 
+ * @author G00342845
+ * 		   Darren Hallinan
+ *
+ */
+
+/** Server() class */
+public class Server {
+	/** main method for the program's server */
+	public static void main(String[] args) {
+		// initialise server and client variables
+		ServerSocket listener;
+		int clientid = 0;
+
+		try {
+			listener = new ServerSocket(5005, 10);
+
+			while (true) {
+				System.out.println("Main thread listening for incoming new connections");
+				Socket newconnection = listener.accept();
+
+				System.out.println("New connection received and spanning a thread");
+				ConnectHandler t = new ConnectHandler(newconnection, clientid);
+				clientid++;
+				t.run();
+			}
+
+		}
+		// throws error if connection fails
+		catch (IOException e) {
+			System.out.println("Error with Socket... Could not open...");
+			e.printStackTrace();
+		}
+	}
+
+} // end of Server()
+
+/** Connecthandler() class for the program's server */
+class ConnectHandler implements Runnable {
+	// initialise variables
+	Socket individualconnection;
+	int socketid;
+	ObjectOutputStream out;
+	ObjectInputStream in;
+	String message;
+
+	/** constructor method for Connecthandler */
+	public ConnectHandler(Socket s, int i) {
+		individualconnection = s;
+		socketid = i;
+	}
+
+	/** message sending method to the client */
+	void sendMessage(String msg) {
+		try {
+			out.writeObject(msg);
+			out.flush();
+			System.out.println("client > \n" + msg);
+		} catch (IOException ioException) { ioException.printStackTrace(); }
+	}
+
+	/** run function for the server */
+	public void run() {
+		try {	
+			out = new ObjectOutputStream(individualconnection.getOutputStream());
+			out.flush();
+			in = new ObjectInputStream(individualconnection.getInputStream());
+			System.out.println("Connection "+ socketid + " from IP address " + individualconnection.getInetAddress());
+			
+			do {	
+				// start talking with the client					
+				sendMessage("Options: \n  1)Login\n  2)Create Account\n -1)Exit\n");
+				message = in.readObject().toString();
+				
+				if (message.equals("1")) // brings the user to login upon hitting 1
+					login();
+				else if (message.equals("2")) // brings user to signup upon hitting 2
+					signup();
+				
+			}while(!message.equalsIgnoreCase("-1"));
+			
+		} catch (IOException | ClassNotFoundException e) { e.printStackTrace(); } 
+		
+		// close down connections
+		finally {
+			try {
+				out.close();
+				in.close();
+				individualconnection.close();
+			} catch (IOException e) { e.printStackTrace(); }
+		}
+
+	} // end of run
+
+	/** login function for the server  */
+	public void login() throws ClassNotFoundException, IOException {
+		File file = new File("userInfo.txt");	
+	    Scanner scanner = new Scanner(file);
+		// only need ID and email for login
+		String empId;
+		String email;
+		
+		sendMessage("Please enter your ID: "); // send prompt to enter ID
+		empId = in.readObject().toString();
+		sendMessage("Please enter your email address: "); // send prompt to enter email
+		email = in.readObject().toString();
+		
+		String searchStr = (empId.toString() + " " + email.toString());
+		int linecount = 0;
+	    
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			String[] details = line.split(" ");
+            String existingId = details[0];
+            String existingEmail = details[1];
+
+            if(searchStr == (existingId + existingEmail)){
+            	sendMessage("Welcome Back " + empId);
+            	registerBug();
+            }
+            else 
+            	sendMessage("Sorry... ID of " + empId + " was not found");
+            
+            linecount++;    
+		}
+	    
+	}
+
+	/** signup function for the server */
+	public void signup() throws IOException, ClassNotFoundException {
+		// user variables
+		String name;
+		String empId;
+		String email;
+		String department;
+		
+		// create a loop that gives user the choice to re-enter incorrect info
+		do {
+			// gives user menu to enter details
+			sendMessage("Please enter your name: "); // send prompt to enter name
+			name = in.readObject().toString();
+			sendMessage("Please enter your employee ID: "); // send prompt to enter ID
+			empId = in.readObject().toString();
+			sendMessage("Please enter your email address: "); // send prompt to enter email
+			email = in.readObject().toString();
+			sendMessage("Please enter your department: "); // send prompt to enter password
+			department = in.readObject().toString();
+			
+			sendMessage("Press 1 to confirm details or 2 to re-enter: \n");
+			message = in.readObject().toString();
+		}while(!message.equalsIgnoreCase("1"));
+		
+		// creates employee object
+		Employee employee = new Employee(name, empId, email, department);
+
+		// writes to file only after details are confirmed
+		FileWriter fW = new FileWriter("userInfo.txt", true); // set append to true
+		fW.write(empId + " " + email + " " + name + " " + department);
+		fW.close();
+	}
+
+	
+	/** function to register a new bug */
+	public void registerBug() throws IOException, ClassNotFoundException {
+		// bug variables
+		String appName;
+		String timeStamp;
+		String platform;
+		String descpription;
+		String status;
+
+		// create a loop that gives user the choice to re-enter incorrect info
+		do {
+			// gives user menu to enter details
+			sendMessage("Enter the application name: "); // send prompt to enter name of app
+			appName = in.readObject().toString();
+			sendMessage("Enter the date (dd/mm): "); // send prompt to enter time stamp
+			timeStamp = in.readObject().toString();
+			sendMessage("Enter the platform the bug occurred on: "); // send prompt to enter platform
+			platform = in.readObject().toString();
+			sendMessage("Enter a description of the bug: "); // send prompt to enter description
+			descpription = in.readObject().toString();
+			sendMessage("Enter the current status of the bug: "); // send prompt to enter status
+			status = in.readObject().toString();
+			
+			sendMessage("Press 1 to confirm details or 2 to re-enter: \n");
+			message = in.readObject().toString();
+		} while (!message.equalsIgnoreCase("1"));
+
+		// creates employee object
+		Bug bug = new Bug(appName, timeStamp, platform, descpription, status);
+
+		// writes to file only after details are confirmed
+		FileWriter fW = new FileWriter("bugInfo.txt", true); // set append to true
+		fW.write(bug.toString());
+		fW.close();
+	}
+} // end of Connecthandler()

@@ -1,0 +1,20 @@
+package server;
+
+public class Employee {
+	private String name;
+	private String empId;
+	private String email;
+	private String department;
+	
+	private Employee() {
+		this.name = name;
+		String empId;
+		String email;
+		String department;
+	}
+
+	public Employee(String name, String empId, String email, String department) {
+		// TODO Auto-generated constructor stub
+	}
+
+}

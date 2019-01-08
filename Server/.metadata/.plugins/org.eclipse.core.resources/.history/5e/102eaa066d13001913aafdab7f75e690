@@ -1,0 +1,36 @@
+package server;
+
+public class Bug {
+	// bug variables
+	private String appName;
+	private String timeStamp;
+	private String platform;
+	private String descpription;
+	private String status;
+
+	// basic constructor
+	public Bug(String appName, String timeStamp, String platform, String descpription, String status) {
+		this.appName = appName;
+		this.timeStamp = timeStamp;
+		this.platform = platform;
+		this.descpription = descpription;
+		this.status = status;
+	}
+	
+	// name getter/setter
+	public String getAppName() { return appName; }
+	public void setAppName(String appName) { this.appName = appName; }
+	// timeStamp getter/setter
+	public String getTimeStamp() { return timeStamp; }
+	public void setTimeStamp(String timeStamp) { this.timeStamp = timeStamp; }
+	// platform getter/setter
+	public String getPlatform() {return platform; }
+	public void setPlatform(String platform) { this.platform = platform; }
+	// description getter/setter
+	public String getDescpription() { return descpription; }
+	public void setDescpription(String descpription) { this.descpription = descpription; }
+	// status getter/setter
+	public String getStatus() { return status; }
+	public void setStatus(String status) { this.status = status; }
+
+}

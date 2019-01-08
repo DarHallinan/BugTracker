@@ -1,6 +1,5 @@
 package server;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,7 +30,7 @@ public class Server {
 				System.out.println("New connection received and spanning a thread");
 				ConnectHandler t = new ConnectHandler(newconnection, clientid);
 				clientid++;
-				t.start();
+				t.run();
 			}
 
 		}
@@ -45,13 +44,13 @@ public class Server {
 } // end of Server()
 
 /** Connecthandler() class for the program's server */
-class ConnectHandler extends Thread {
+class ConnectHandler implements Runnable {
 	// initialise variables
 	Socket individualconnection;
 	int socketid;
-	ObjectOutputStream out;
-	ObjectInputStream in;
-	String message;
+	static ObjectOutputStream out;
+	static ObjectInputStream in;
+	static String message;
 
 	/** constructor method for Connecthandler */
 	public ConnectHandler(Socket s, int i) {
@@ -60,35 +59,34 @@ class ConnectHandler extends Thread {
 	}
 
 	/** message sending method to the client */
-	void sendMessage(String msg) {
+	public static void sendMessage(String msg) {
 		try {
 			out.writeObject(msg);
 			out.flush();
-			System.out.println("client > \n" + msg);
+			System.out.println("client>\n" + msg);
 		} catch (IOException ioException) { ioException.printStackTrace(); }
 	}
 
 	/** run function for the server */
 	public void run() {
-		try 
-		{
-		
+		try {	
 			out = new ObjectOutputStream(individualconnection.getOutputStream());
 			out.flush();
 			in = new ObjectInputStream(individualconnection.getInputStream());
 			System.out.println("Connection "+ socketid + " from IP address " + individualconnection.getInetAddress());
-				
-			do{
+						
+			do {	
 				// start talking with the client					
 				sendMessage("Options: \n  1)Login\n  2)Create Account\n -1)Exit\n");
-				message = (String)in.readObject();
+				message = in.readObject().toString();
 				
-				if (message.equals("1"))
-					login();
-				else if (message.equals("2"))
-					signup();
+				if (message.equals("1")) // brings the user to login upon hitting 1
+					Employee.login(in);
+				else if (message.equals("2")) // brings user to signup upon hitting 2
+					Employee.signup(in);
 				
-			}while(!message.equalsIgnoreCase("-1"));				
+			}while(!message.equalsIgnoreCase("-1"));
+			
 		} catch (IOException | ClassNotFoundException e) { e.printStackTrace(); } 
 		
 		// close down connections
@@ -102,39 +100,18 @@ class ConnectHandler extends Thread {
 
 	} // end of run
 
-	/** login function for the server */
-	public void login() {
-
-	}
-
-	/** signup function for the server */
-	public void signup() throws IOException, ClassNotFoundException {
-		// user variables
-		String name;
-		String empId;
-		String email;
-		String department;
-		
-		// create a loop that gives user the choice to re-enter incorrect info
+	/** bug menu for when user is logged in */
+	public static void bugMenu() throws IOException, ClassNotFoundException {
 		do {
-			// gives user menu to enter details
-			sendMessage("Please enter your name: "); // send prompt to enter name
-			name = (String)in.readObject();
-			sendMessage("Please enter your employee ID: "); // send prompt to enter ID
-			empId = (String)in.readObject();
-			sendMessage("Please enter your email address: "); // send prompt to enter email
-			email = (String)in.readObject();
-			sendMessage("Please enter your department: "); // send prompt to enter password
-			department = (String)in.readObject();
-			
-			sendMessage("Press 1 to confirm details or 2 to re-enter: \n");
-			message = (String)in.readObject();
-		}while(message.equalsIgnoreCase("2"));
+		sendMessage("Options: \n  1)Register Bug\n  2)View all bugs\n -1)Log out\n");
+		message = in.readObject().toString();
 		
-		// writes to file only after details are confirmed
-		FileWriter fW = new FileWriter("userInfo.txt", true); // set append to true
-		fW.write(empId + " " + email + " " + name + " " + department);
-		fW.close();
-	}
+		if (message.equals("1")) // brings the user to register new bug
+			Bug.registerBug(in);
+		else if (message.equals("2")) // brings user to view all bugs
+			Bug.viewAllBugs(in);
 
-} // end of Connecthandler()
+		}while (!message.equalsIgnoreCase("-1"));
+	} // end of bugMenu()
+		
+} // end of ConnectHandler()

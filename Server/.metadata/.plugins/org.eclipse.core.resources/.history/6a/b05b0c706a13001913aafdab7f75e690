@@ -1,0 +1,19 @@
+package server;
+
+public class Bug {
+	// bug variables
+	private String appName;
+	private String timeStamp;
+	private String platform;
+	private String descpription;
+	private String status;
+
+	public Bug(String appName, String timeStamp, String platform, String descpription, String status) {
+		this.appName = appName;
+		this.timeStamp = timeStamp;
+		this.platform = platform;
+		this.descpription = descpription;
+		this.status = status;
+	}
+
+}
